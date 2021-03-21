@@ -32,7 +32,7 @@ Data stack (top first):
 ['"Give me $a"', 43, 'call', '"a"', 'store', '"Give me $b"', 43, 'call', '"b"', 'store', '"Give me $c"', 43, 'call', '"c"', 'store', '"Give me $x"', 43, 'call', '"x"', 'store', '"a"', 'load', '"x"', 'load', '*', '"b"', 'load', '+', '"x"', 'load', '*', '"c"', 'load', '+', 'dup', 'println', 'stack', '', '', 'exit', 'dup', '*', 'return', 'print', 'read', 'cast_int', 'return']
 
 ```
-#### Внутренние сущности:  
+### Внутренние сущности:  
 * `DS` (data stack) - основной стек для операций
 * `RS` (return stack) - поддерживает работу процедур
 * `IP` (instruction pointer) - указатель на текущую инструкцию в коде
@@ -40,7 +40,7 @@ Data stack (top first):
 * `TOS` (top-of-stack) - вершина стека
 * `heap` - пространство для переменных
 
-#### Минимальный набор инструкций:  
+### Минимальный набор инструкций:  
 * int-арифметика: `%`, `*`, `+`, `-`, `/`, `==`
 * `cast_int`, `cast_str` - преобразование в `int`, `str`: 
 * `drop` - удалить TOS
@@ -57,7 +57,7 @@ Data stack (top first):
 * `store` - положить по имени TOS значение TOS-1
 * `load` - загрузить содержимое переменной TOS, положить в TOS
 
-#### Основные идеи:  
+### Основные идеи:  
 * при парсинге, можно использовать встроенный питонячий-токенизатор: 
   ```python
   stream = io.StringIO(text)
@@ -79,3 +79,5 @@ Data stack (top first):
   * пройтись по результирующему коду, заменить все названия процедур на их адреса
 
 PS - за идею благодарим Christian Stigen Larsen (https://csl.name/post/vm/).
+
+`Copyright 2021 aaaaaaaalesha <sks2311211@mail.ru>`
