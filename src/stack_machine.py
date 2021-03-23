@@ -1,4 +1,4 @@
-# Copyright 2021 aaaaaaaalesha
+# Copyright 2021 aaaaaaaalesha <sks2311211@mail.ru>
 
 from src.stack import Stack
 
