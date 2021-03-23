@@ -29,7 +29,6 @@ pipreqs==0.4.10
 prompt-toolkit==1.0.15
 pycrypto==2.6.1
 Pygments==2.2.0
-pygobject==3.26.1
 pyOpenSSL==17.5.0
 PyPDF2==1.26.0
 pyxdg==0.25
