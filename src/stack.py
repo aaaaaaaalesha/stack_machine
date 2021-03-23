@@ -14,7 +14,7 @@ class Stack(deque):
         repr_version = self.copy()
         repr_version.reverse()
 
-        return f"Stack{list(repr_version)}"
+        return "Stack" + list(repr_version).__str__()
 
     def empty(self):
         return len(self) == 0
