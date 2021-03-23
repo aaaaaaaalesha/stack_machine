@@ -3,8 +3,6 @@
 import unittest
 from src.stack import Stack
 
-import time
-
 
 class StackTestCase(unittest.TestCase):
 
@@ -22,7 +20,6 @@ class StackTestCase(unittest.TestCase):
         stack.clear()
 
         self.assertTrue(stack.empty())
-        time.sleep(10)
 
     def test_stack_pop_top(self):
         stack = Stack()
