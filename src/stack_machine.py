@@ -157,15 +157,24 @@ class StackMachine:
         stream = io.StringIO(text)
         tokens = tokenize.generate_tokens(stream.readline)
 
+        # For comments deleting.
+        comment_flag = False
         for toknum, tokval, _, _, _ in tokens:
             if toknum == tokenize.NUMBER:
-                yield int(tokval)
+                if not comment_flag:
+                    yield int(tokval)
             elif toknum == tokenize.NEWLINE:  # '\n'
+                if comment_flag:
+                    comment_flag = False
                 continue
             elif toknum == tokenize.ENDMARKER:  # ''
-                break
+                if not comment_flag:
+                    break
+            elif tokval == '//':
+                comment_flag = True
             else:
-                yield tokval
+                if not comment_flag:
+                    yield tokval
 
     # Instructions implementation.
     def sum(self):
@@ -307,7 +316,9 @@ if __name__ == "__main__":
     #     '"Their sum is: "', "print", "+", "print",
     # ])
 
-    text = """: power2 dup * ;
+    text = """// функция возведения в квадрат
+: power2 dup * ;
+// функция получения int от пользователя
 : get_arg print read cast_int ;
 "Give me $a" get_arg "a" store
 "Give me $b" get_arg "b" store
