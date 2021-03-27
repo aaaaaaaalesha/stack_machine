@@ -160,9 +160,9 @@ class StackMachine:
         for toknum, tokval, _, _, _ in tokens:
             if toknum == tokenize.NUMBER:
                 yield int(tokval)
-            elif toknum == tokenize.NEWLINE:
+            elif toknum == tokenize.NEWLINE:  # '\n'
                 continue
-            elif toknum == tokenize.ENDMARKER:
+            elif toknum == tokenize.ENDMARKER:  # ''
                 break
             else:
                 yield tokval
