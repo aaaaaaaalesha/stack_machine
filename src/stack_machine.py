@@ -13,6 +13,10 @@ class InvalidInstructionException(StackMachineException):
     pass
 
 
+class HeapException(StackMachineException):
+    pass
+
+
 class StackMachine:
     """Implementation of virtual stack machine."""
 
@@ -46,6 +50,7 @@ class StackMachine:
             'stack': self.output_stack,
             'swap': self.swap,
             'print': self.print,
+            'println': self.println,
             'read': self.read,
             'call': self.call,
             'return': self.ret,
@@ -103,12 +108,10 @@ class StackMachine:
         if any([p in self._code_list for p in self._procedures.keys()]):
             i = 0
             while i != (len(self._code_list) - 1):
-                i += 1
                 if self._code_list[i] in self._procedures:
                     i += 1
                     # Replace procedure_name to address of procedure (hash in our dict)  and 'call'.
-                    code_copy = self._code_list[:i] + \
-                                ['call'] + self._code_list[i:]
+                    code_copy = self._code_list[:i] + ['call'] + self._code_list[i:]
                     self._code_list = code_copy
                 i += 1
 
@@ -122,7 +125,7 @@ class StackMachine:
                 address = len(self._code_list)
                 for opcode in procedure_code:
                     self._code_list.append(opcode)
-                self._code_list.append('ret')
+                self._code_list.append('return')
                 self._procedures[procedure_name] = address
 
             # Step 6. Change procedures' names to their addresses.
@@ -142,7 +145,7 @@ class StackMachine:
                 self._ds.push(current)
             elif isinstance(current, str) and (current[0] == current[len(current) - 1] == '"'):
                 # Put message on data stack.
-                self._ds.push(current[1:len(current) - 2])
+                self._ds.push(current[1:len(current) - 1])
             elif current in self._valid_operations:
                 # Run the instruction.
                 self._valid_operations[current]()
@@ -253,6 +256,10 @@ class StackMachine:
 
     def print(self):
         """Output the TOS."""
+        print(self._ds.pop(), end=' ')
+
+    def println(self):
+        """Output the TOS and switching to a new line."""
         print(self._ds.pop())
 
     def read(self):
@@ -268,18 +275,27 @@ class StackMachine:
         self._iptr = self._rs.pop()
 
     def call(self):
+        """Calling an existing procedure."""
         # Store return pointer in RS.
         self._rs.push(self._iptr)
         # Jump to calling procedure.
         self.jump()
 
     def store(self):
-        # TODO
-        pass
+        """Put the value of TOS-1 by the variable initialized by name of TOS."""
+        var_name = self._ds.pop()
+        value = self._ds.pop()
+        # Store pair var_name-value in heap.
+        self._heap[var_name] = value
 
     def load(self):
-        # TODO
-        pass
+        """Loads the value of var from the heap by the name lying on TOS and puts this value on TOS."""
+        var_name = self._ds.pop()
+        if var_name in self._heap:
+            # Load the value.
+            self._ds.push(self._heap[var_name])
+        else:
+            raise HeapException(f"No variable {var_name} in heap.")
 
 
 if __name__ == "__main__":
@@ -297,7 +313,7 @@ if __name__ == "__main__":
 "Give me $b" get_arg "b" store
 "Give me $c" get_arg "c" store
 "Give me $x" get_arg "x" store
-"a" load "x" load * "b" load + "x" load * "c" load + dup print stack
+"a" load "x" load power2  * "b" load "x" load * + "c" load + dup println stack
 """
 
     sm = StackMachine(text)

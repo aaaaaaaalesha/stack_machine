@@ -18,7 +18,7 @@
 "Give me $b" get_arg "b" store
 "Give me $c" get_arg "c" store
 "Give me $x" get_arg "x" store
-"a" load "x" load * "b" load + "x" load * "c" load + dup println stack
+"a" load "x" load power2  * "b" load "x" load * + "c" load + dup println stack
 ------------------------------
 
 /usr/local/bin/python3.7 pythonProject/vm.py run.vm
@@ -34,7 +34,6 @@ Data stack (top first):
 ---------------------------------------
 Результат компиляции:
 ['"Give me $a"', 43, 'call', '"a"', 'store', '"Give me $b"', 43, 'call', '"b"', 'store', '"Give me $c"', 43, 'call', '"c"', 'store', '"Give me $x"', 43, 'call', '"x"', 'store', '"a"', 'load', '"x"', 'load', '*', '"b"', 'load', '+', '"x"', 'load', '*', '"c"', 'load', '+', 'dup', 'println', 'stack', '', '', 'exit', 'dup', '*', 'return', 'print', 'read', 'cast_int', 'return']
-
 ```
 
 ### Внутренние сущности:
@@ -61,8 +60,8 @@ Data stack (top first):
 -[x] `return` - возврат из процедуры (return_stack.pop);
 -[x] `exit` - завершение VM;
 -[x] `call` - вызов процедуры (сохранить состояние IP, перейти по адресу первой инструкции процедуры);
--[ ] `store` - положить по имени TOS значение TOS-1;
--[ ] `load` - загрузить содержимое переменной TOS, положить в TOS;
+-[x] `store` - положить по имени TOS значение TOS-1 в `heap`;
+-[x] `load` - загрузить содержимое переменной TOS, положить в TOS;
 
 ### Основные идеи:
 
