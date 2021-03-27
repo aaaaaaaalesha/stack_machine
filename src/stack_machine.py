@@ -22,19 +22,19 @@ class StackMachine:
 
     def __init__(self, text: str):
         # Data stack (main stack for operations).
-        self._ds = Stack()
+        self.__ds = Stack()
         # Return stack (supports procedures work).
-        self._rs = Stack()
+        self.__rs = Stack()
         # Instruction pointer.
-        self._iptr = 0
+        self.__iptr = 0
         # Input text parsed into list of values and instructions.
-        self._code_list = list(self.parse(text))
+        self.__code_list = list(self.parse(text))
         # Storage for variables. Mapping names of vars to their values.
-        self._heap = dict()
+        self.__heap = dict()
         # Storage for procedures.
-        self._procedures = dict()
+        self.__procedures = dict()
         # Mapping operations in our language to functions that perform the necessary business logic.
-        self._valid_operations = {
+        self.__valid_operations = {
             '+': self.sum,
             '-': self.sub,
             '*': self.mult,
@@ -71,86 +71,87 @@ class StackMachine:
         """
 
         # Step 1. Save all procedures in special dict (self._procedures).
-        for ptr in range(len(self._code_list)):
-            if self._code_list[ptr] == ':':
+        for ptr in range(len(self.__code_list)):
+            if self.__code_list[ptr] == ':':
                 # All procedures have the following form:
                 # : <procedure_name> <instr_1> <instr_2> ... <instr_N> ;
-                procedure_name = self._code_list[ptr + 1]
+                procedure_name = self.__code_list[ptr + 1]
                 ptr += 2
                 procedure_code = []
-                while self._code_list[ptr] != ';':
-                    procedure_code.append(self._code_list[ptr])
+                while self.__code_list[ptr] != ';':
+                    procedure_code.append(self.__code_list[ptr])
                     ptr += 1
                 # For the specified procedure_name, we set a list of instructions.
                 # Then the address of the procedure will be the hash of the key in the dict.
-                self._procedures[procedure_name] = procedure_code
+                self.__procedures[procedure_name] = procedure_code
 
         # Cut the procedures from the course code.
-        while self._code_list.count(':') != 0:
-            ind = self._code_list.index(':')
-            last_ind = self._code_list.index(';')
-            self._code_list = self._code_list[:ind] + self._code_list[last_ind + 1:]
+        while self.__code_list.count(':') != 0:
+            ind = self.__code_list.index(':')
+            last_ind = self.__code_list.index(';')
+            self.__code_list = self.__code_list[:ind] + self.__code_list[last_ind + 1:]
 
         # Step 2. Replace procedures with <procedure_address> 'call' in procedures' code.
-        for procedure_name, procedure_code in self._procedures.items():
+        for procedure_name, procedure_code in self.__procedures.items():
             # Check that at least one procedure in code.
-            if any([p in procedure_code for p in self._procedures.keys()]):
+            if any([p in procedure_code for p in self.__procedures.keys()]):
                 i = 0
-                while i != (len(self._procedures[procedure_name]) - 1):
-                    if procedure_code[i] in self._procedures:
+                while i != (len(self.__procedures[procedure_name]) - 1):
+                    if procedure_code[i] in self.__procedures:
                         i += 1
                         # Replace procedure_name to address of procedure (hash in our dict)  and 'call'.
                         code_copy = procedure_code[:i] + ['call'] + procedure_code[i:]
-                        self._procedures[procedure_name] = code_copy
+                        self.__procedures[procedure_name] = code_copy
                     i += 1
 
         # Step 3. Replace procedures with <procedure_address> 'call' in main-code.
-        if any([p in self._code_list for p in self._procedures.keys()]):
+        if any([p in self.__code_list for p in self.__procedures.keys()]):
             i = 0
-            while i != (len(self._code_list) - 1):
-                if self._code_list[i] in self._procedures:
+            while i != (len(self.__code_list) - 1):
+                if self.__code_list[i] in self.__procedures:
                     i += 1
                     # Replace procedure_name to address of procedure (hash in our dict)  and 'call'.
-                    code_copy = self._code_list[:i] + ['call'] + self._code_list[i:]
-                    self._code_list = code_copy
+                    code_copy = self.__code_list[:i] + ['call'] + self.__code_list[i:]
+                    self.__code_list = code_copy
                 i += 1
 
-        if self._procedures:
+        if self.__procedures:
             # Step 4. Add an 'exit' instruction.
-            self._code_list.append('exit')
+            self.__code_list.append('exit')
 
             # Step 5. Add the procedures code at the end of 'main'-code.
-            for procedure_name, procedure_code in self._procedures.items():
+            for procedure_name, procedure_code in self.__procedures.items():
                 # Address of future procedure.
-                address = len(self._code_list)
+                address = len(self.__code_list)
                 for opcode in procedure_code:
-                    self._code_list.append(opcode)
-                self._code_list.append('return')
-                self._procedures[procedure_name] = address
+                    self.__code_list.append(opcode)
+                self.__code_list.append('return')
+                self.__procedures[procedure_name] = address
 
             # Step 6. Change procedures' names to their addresses.
-            for i in range(len(self._code_list)):
-                if self._code_list[i] in self._procedures:
-                    self._code_list[i] = self._procedures[self._code_list[i]]
+            for i in range(len(self.__code_list)):
+                if self.__code_list[i] in self.__procedures:
+                    self.__code_list[i] = self.__procedures[self.__code_list[i]]
 
     def launch(self):
         """Launching the stack machine."""
         self.compile()
-        while self._iptr < len(self._code_list):
-            current = self._code_list[self._iptr]
+        while self.__iptr < len(self.__code_list):
+            current = self.__code_list[self.__iptr]
             # Go to next instruction.
-            self._iptr += 1
+            self.__iptr += 1
             if isinstance(current, int):
                 # Put number on data stack.
-                self._ds.push(current)
-            elif isinstance(current, str) and (current[0] == current[len(current) - 1] == '"'):
+                self.__ds.push(current)
+            elif isinstance(current, str) and ((current[0] == current[len(current) - 1] == '"') or (
+                    current[0] == current[len(current) - 1] == "'")):
                 # Put message on data stack.
-                self._ds.push(current[1:len(current) - 1])
-            elif current in self._valid_operations:
+                self.__ds.push(current[1:len(current) - 1])
+            elif current in self.__valid_operations:
                 # Run the instruction.
-                self._valid_operations[current]()
+                self.__valid_operations[current]()
             else:
-                raise InvalidInstructionException(f"{current} is invalid instruction or type for stack machine.")
+                raise InvalidInstructionException(str(current) + " is invalid instruction or type for stack machine.")
 
     def parse(self, text: str):
         """Parsing the source code to instructions list for machine."""
@@ -170,110 +171,116 @@ class StackMachine:
             elif toknum == tokenize.ENDMARKER:  # ''
                 if not comment_flag:
                     break
-            elif tokval == '//':
+            elif tokval == '//':  # beginning of the comment
                 comment_flag = True
             else:
                 if not comment_flag:
                     yield tokval
 
+    def get_TOS(self):
+        """
+        :return: TOS value
+        """
+        return self.__ds.pop()
+
     # Instructions implementation.
     def sum(self):
         """Implementation of '+'."""
-        rhs = self._ds.pop()
-        lhs = self._ds.pop()
-        self._ds.push(lhs + rhs)
+        rhs = self.__ds.pop()
+        lhs = self.__ds.pop()
+        self.__ds.push(lhs + rhs)
 
     def sub(self):
         """Implementation of '-'."""
-        rhs = self._ds.pop()
-        lhs = self._ds.pop()
-        self._ds.push(lhs - rhs)
+        rhs = self.__ds.pop()
+        lhs = self.__ds.pop()
+        self.__ds.push(lhs - rhs)
 
     def mult(self):
         """Implementation of '*'."""
-        rhs = self._ds.pop()
-        lhs = self._ds.pop()
-        self._ds.push(lhs * rhs)
+        rhs = self.__ds.pop()
+        lhs = self.__ds.pop()
+        self.__ds.push(lhs * rhs)
 
     def div(self):
         """Implementation of '/'."""
-        rhs = self._ds.pop()
-        lhs = self._ds.pop()
-        self._ds.push(lhs / rhs)
+        rhs = self.__ds.pop()
+        lhs = self.__ds.pop()
+        self.__ds.push(lhs / rhs)
 
     def mod(self):
         """Implementation of '%'."""
-        rhs = self._ds.pop()
-        lhs = self._ds.pop()
-        self._ds.push(lhs % rhs)
+        rhs = self.__ds.pop()
+        lhs = self.__ds.pop()
+        self.__ds.push(lhs % rhs)
 
     def equal(self):
         """Implementation of '=='."""
-        rhs = self._ds.pop()
-        lhs = self._ds.pop()
-        self._ds.push(lhs == rhs)
+        rhs = self.__ds.pop()
+        lhs = self.__ds.pop()
+        self.__ds.push(lhs == rhs)
 
     def cast_int(self):
         """Cast TOS to int."""
-        casted_value = int(self._ds.pop())
-        self._ds.push(casted_value)
+        casted_value = int(self.__ds.pop())
+        self.__ds.push(casted_value)
 
     def cast_str(self):
         """Cast TOS to str."""
-        casted_value = str(self._ds.pop())
-        self._ds.push(casted_value)
+        casted_value = str(self.__ds.pop())
+        self.__ds.push(casted_value)
 
     def drop(self):
         """Throw TOS away..."""
-        self._ds.pop()
+        self.__ds.pop()
 
     def dup(self):
         """Duplication of TOS."""
-        tos = self._ds.top()
-        self._ds.push(tos)
+        tos = self.__ds.top()
+        self.__ds.push(tos)
 
     def operator_if(self):
         """Implementation if-operator."""
-        is_false = self._ds.pop()
-        is_true = self._ds.pop()
-        condition = self._ds.pop()
+        is_false = self.__ds.pop()
+        is_true = self.__ds.pop()
+        condition = self.__ds.pop()
 
         if condition:
-            self._ds.push(is_true)
+            self.__ds.push(is_true)
         else:
-            self._ds.push(is_false)
+            self.__ds.push(is_false)
 
     def jump(self):
         """Jumping to pointer of instruction."""
-        ptr = self._ds.pop()
-        if not (0 <= ptr < len(self._code_list)):
+        ptr = self.__ds.pop()
+        if not (0 <= ptr < len(self.__code_list)):
             raise OverflowError("Instruction jmp cannot be executed with a pointer outside the valid range.")
-        self._iptr = ptr
+        self.__iptr = ptr
 
     def output_stack(self):
         """Output the content of DS, IP and RS."""
-        print("Data " + self._ds.__str__())
-        print("Instruction Pointer: " + str(self._iptr))
-        print("Return" + self._rs.__str__())
+        print("Data " + self.__ds.__str__())
+        print("Instruction Pointer: " + str(self.__iptr))
+        print("Return" + self.__rs.__str__())
 
     def swap(self):
         """Swap TOS and TOS-1."""
-        tos = self._ds.pop()
-        tos1 = self._ds.pop()
-        self._ds.push(tos)
-        self._ds.push(tos1)
+        tos = self.__ds.pop()
+        tos1 = self.__ds.pop()
+        self.__ds.push(tos)
+        self.__ds.push(tos1)
 
     def print(self):
         """Output the TOS."""
-        print(self._ds.pop(), end=' ')
+        print(self.__ds.pop(), end=' ')
 
     def println(self):
         """Output the TOS and switching to a new line."""
-        print(self._ds.pop())
+        print(self.__ds.pop())
 
     def read(self):
         """Read an input of user and put it at the TOS."""
-        self._ds.push(input())
+        self.__ds.push(input())
 
     def exit(self):
         """Terminates the stack machine."""
@@ -281,40 +288,40 @@ class StackMachine:
 
     def ret(self):
         """Return from procedure."""
-        self._iptr = self._rs.pop()
+        self.__iptr = self.__rs.pop()
 
     def call(self):
         """Calling an existing procedure."""
         # Store return pointer in RS.
-        self._rs.push(self._iptr)
+        self.__rs.push(self.__iptr)
         # Jump to calling procedure.
         self.jump()
 
     def store(self):
         """Put the value of TOS-1 by the variable initialized by name of TOS."""
-        var_name = self._ds.pop()
-        value = self._ds.pop()
+        var_name = self.__ds.pop()
+        value = self.__ds.pop()
         # Store pair var_name-value in heap.
-        self._heap[var_name] = value
+        self.__heap[var_name] = value
 
     def load(self):
         """Loads the value of var from the heap by the name lying on TOS and puts this value on TOS."""
-        var_name = self._ds.pop()
-        if var_name in self._heap:
+        var_name = self.__ds.pop()
+        if var_name in self.__heap:
             # Load the value.
-            self._ds.push(self._heap[var_name])
+            self.__ds.push(self.__heap[var_name])
         else:
             raise HeapException(f"No variable {var_name} in heap.")
 
 
 if __name__ == "__main__":
-    # text1 = "2 3 + 4 * print"
-
-    # text2 = ' '.join([
-    #     '"Enter a number: "', "print", "read", "cast_int",
-    #     '"Enter another number: "', "print", "read", "cast_int",
-    #     '"Their sum is: "', "print", "+", "print",
-    # ])
+    text2 = ' '.join([
+        '"Enter a number: "', "print", "read", "cast_int",
+        '"Enter another number: "', "print", "read", "cast_int",
+        '"Their sum is: "', "print", "+", "print", '"sum"', "store",
+        '"Their product is: ""', "print", "*", "print", '"prod"', "store",
+        '"prod"', "load", '"sum"', "load"
+    ])
 
     text = """// функция возведения в квадрат
 : power2 dup * ;
