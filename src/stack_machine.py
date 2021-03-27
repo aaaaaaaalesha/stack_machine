@@ -27,6 +27,8 @@ class StackMachine:
         self._code_list = list(self.parse(text))
         # Storage for variables. Mapping names of vars to their values.
         self._heap = dict()
+        # Storage for procedures.
+        self._procedures = dict()
         # Mapping operations in our language to functions that perform the necessary business logic.
         self._valid_operations = {
             '+': self.sum,
@@ -52,10 +54,89 @@ class StackMachine:
             'load': self.load,
         }
 
+    def compile(self):
+        """
+        When "compiling", we need to do the following:
+            1. separate procedures from the rest of the code (temp dict self._procedures);
+            2. go through the code inside the procedures, replace procedures with <procedure_address> 'call';
+            3. go through the 'main'-code, replace procedures with <procedure_address_> 'call';
+            4. add an 'exit' instruction to the end of the 'main' code;
+            5. add the procedure code to the end of the resulting code, save the addresses;
+            6. go through the resulting code, replace all procedure names with their addresses;
+        """
+
+        # Step 1. Save all procedures in special dict (self._procedures).
+        for ptr in range(len(self._code_list)):
+            if self._code_list[ptr] == ':':
+                # All procedures have the following form:
+                # : <procedure_name> <instr_1> <instr_2> ... <instr_N> ;
+                procedure_name = self._code_list[ptr + 1]
+                ptr += 2
+                procedure_code = []
+                while self._code_list[ptr] != ';':
+                    procedure_code.append(self._code_list[ptr])
+                    ptr += 1
+                # For the specified procedure_name, we set a list of instructions.
+                # Then the address of the procedure will be the hash of the key in the dict.
+                self._procedures[procedure_name] = procedure_code
+
+        # Cut the procedures from the course code.
+        while self._code_list.count(':') != 0:
+            ind = self._code_list.index(':')
+            last_ind = self._code_list.index(';')
+            self._code_list = self._code_list[:ind] + self._code_list[last_ind + 1:]
+
+        # Step 2. Replace procedures with <procedure_address> 'call' in procedures' code.
+        for procedure_name, procedure_code in self._procedures.items():
+            # Check that at least one procedure in code.
+            if any([p in procedure_code for p in self._procedures.keys()]):
+                i = 0
+                while i != (len(self._procedures[procedure_name]) - 1):
+                    if procedure_code[i] in self._procedures:
+                        i += 1
+                        # Replace procedure_name to address of procedure (hash in our dict)  and 'call'.
+                        code_copy = procedure_code[:i] + ['call'] + procedure_code[i:]
+                        self._procedures[procedure_name] = code_copy
+                    i += 1
+
+        # Step 3. Replace procedures with <procedure_address> 'call' in main-code.
+        if any([p in self._code_list for p in self._procedures.keys()]):
+            i = 0
+            while i != (len(self._code_list) - 1):
+                i += 1
+                if self._code_list[i] in self._procedures:
+                    i += 1
+                    # Replace procedure_name to address of procedure (hash in our dict)  and 'call'.
+                    code_copy = self._code_list[:i] + \
+                                ['call'] + self._code_list[i:]
+                    self._code_list = code_copy
+                i += 1
+
+        if self._procedures:
+            # Step 4. Add an 'exit' instruction.
+            self._code_list.append('exit')
+
+            # Step 5. Add the procedures code at the end of 'main'-code.
+            for procedure_name, procedure_code in self._procedures.items():
+                # Address of future procedure.
+                address = len(self._code_list)
+                for opcode in procedure_code:
+                    self._code_list.append(opcode)
+                self._code_list.append('ret')
+                self._procedures[procedure_name] = address
+
+            # Step 6. Change procedures' names to their addresses.
+            for i in range(len(self._code_list)):
+                if self._code_list[i] in self._procedures:
+                    self._code_list[i] = self._procedures[self._code_list[i]]
+
     def launch(self):
-        """Launching the compilation process by stack machine."""
+        """Launching the stack machine."""
+        self.compile()
         while self._iptr < len(self._code_list):
             current = self._code_list[self._iptr]
+            # Go to next instruction.
+            self._iptr += 1
             if isinstance(current, int):
                 # Put number on data stack.
                 self._ds.push(current)
@@ -67,10 +148,9 @@ class StackMachine:
                 self._valid_operations[current]()
             else:
                 raise InvalidInstructionException(f"{current} is invalid instruction or type for stack machine.")
-            # Go to next instruction.
-            self._iptr += 1
 
     def parse(self, text: str):
+        """Parsing the source code to instructions list for machine."""
         stream = io.StringIO(text)
         tokens = tokenize.generate_tokens(stream.readline)
 
@@ -185,11 +265,13 @@ class StackMachine:
 
     def ret(self):
         """Return from procedure."""
-        self._rs.pop()
+        self._iptr = self._rs.pop()
 
     def call(self):
-        # TODO
-        pass
+        # Store return pointer in RS.
+        self._rs.push(self._iptr)
+        # Jump to calling procedure.
+        self.jump()
 
     def store(self):
         # TODO
@@ -201,7 +283,23 @@ class StackMachine:
 
 
 if __name__ == "__main__":
-    text = "2 3 + 4 * print"
+    # text1 = "2 3 + 4 * print"
+
+    # text2 = ' '.join([
+    #     '"Enter a number: "', "print", "read", "cast_int",
+    #     '"Enter another number: "', "print", "read", "cast_int",
+    #     '"Their sum is: "', "print", "+", "print",
+    # ])
+
+    text = """: power2 dup * ;
+: get_arg print read cast_int ;
+"Give me $a" get_arg "a" store
+"Give me $b" get_arg "b" store
+"Give me $c" get_arg "c" store
+"Give me $x" get_arg "x" store
+"a" load "x" load * "b" load + "x" load * "c" load + dup print stack
+"""
+
     sm = StackMachine(text)
 
     sm.launch()
