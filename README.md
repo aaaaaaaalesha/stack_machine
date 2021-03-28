@@ -1,5 +1,5 @@
 # Домашнее задание №1. Stack Machine.
-
+## Выполнил: Александров Алексей Николаевич, ИУ8-44
 <img alt="aaaaaaaalesha" src="https://img.shields.io/badge/aaaaaaaalesha-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white"/><img alt="Python" src="https://img.shields.io/badge/python%20-%2314354C.svg?&style=for-the-badge&logo=python&logoColor=white"/>
 
 ## Задание.
@@ -116,5 +116,4 @@ k! = 6
 A_{n}^{k} = 60
 C_{n}^{k} = 10 
 ```
-
 `Copyright 2021 aaaaaaaalesha <sks2311211@mail.ru>`
