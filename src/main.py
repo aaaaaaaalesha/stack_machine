@@ -5,7 +5,6 @@ if __name__ == '__main__':
     """Example from the task."""
     with open('../binomial.txt', 'r') as f:
         source_code = f.read()
-        output_source_code(source_code)
 
     sm = StackMachine(source_code)
 

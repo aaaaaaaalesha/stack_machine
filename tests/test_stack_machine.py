@@ -59,6 +59,16 @@ class StackMachineTestCase(unittest.TestCase):
         self.assertEqual(stack_machine.get_TOS(), 3 + 2)
         self.assertEqual(stack_machine.get_TOS(), 3 * 2)
 
+    def test_factorial(self):
+        source_code = '5 "n" store 3 "k" store "n" load ! "k" load !'
+        stack_machine = StackMachine(source_code)
+        stack_machine.launch()
+
+        # k!
+        self.assertEqual(stack_machine.get_TOS(), 6)
+        # n!
+        self.assertEqual(stack_machine.get_TOS(), 120)
+
 
 if __name__ == '__main__':
     unittest.main()

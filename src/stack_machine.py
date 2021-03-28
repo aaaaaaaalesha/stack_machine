@@ -3,6 +3,7 @@
 from src.stack import Stack
 import io
 import tokenize
+from functools import reduce
 
 
 class StackMachineException(Exception):
@@ -40,6 +41,7 @@ class StackMachine:
             '*': self.mult,
             '/': self.div,
             '%': self.mod,
+            '!': self.fact,
             '==': self.equal,
             '>': self.greater,
             '<': self.less,
@@ -48,6 +50,7 @@ class StackMachine:
             'cast_int': self.cast_int,
             'cast_str': self.cast_str,
             'drop': self.drop,
+            'over': self.over,
             'dup': self.dup,
             'if': self.operator_if,
             'jmp': self.jump,
@@ -169,7 +172,7 @@ class StackMachine:
             if toknum == tokenize.NUMBER:
                 if not comment_flag:
                     yield int(tokval)
-            elif toknum == tokenize.NEWLINE:  # '\n'
+            elif toknum == tokenize.NEWLINE or tokval == ' ':  # '\n'
                 if comment_flag:
                     comment_flag = False
                 continue
@@ -224,6 +227,17 @@ class StackMachine:
         rhs = self.__ds.pop()
         lhs = self.__ds.pop()
         self.__ds.push(lhs % rhs)
+
+    def fact(self):
+        """Implementation of '!' (factorial function)."""
+        n = self.__ds.pop()
+        if not isinstance(n, int) or n < 0:
+            raise StackMachineException("Factorial does not defined for " + str(n))
+        else:
+            if n == 0:
+                self.__ds.push(1)
+            else:
+                self.__ds.push(reduce(lambda x, y: x * y, [i for i in range(1, n + 1)]))
 
     def equal(self):
         """Implementation of '=='."""
@@ -305,6 +319,16 @@ class StackMachine:
         self.__ds.push(tos)
         self.__ds.push(tos1)
 
+    def over(self):
+        """
+        Puts the value of TOS-1 on TOS without removing it.
+        :example: Stack[3, 2] -> Stack[2, 3, 2]
+        """
+        old_tos = self.__ds.pop()
+        old_tos1 = self.__ds.pop()
+        self.__ds.push(old_tos)
+        self.__ds.push(old_tos1)
+
     def print(self):
         """Output the TOS."""
         print(self.__ds.pop(), end=' ')
@@ -360,7 +384,6 @@ if __name__ == '__main__':
     """Example from the task."""
     with open('../example.txt', 'r') as f:
         source_code = f.read()
-        output_source_code(source_code)
 
     sm = StackMachine(source_code)
 
