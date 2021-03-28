@@ -1,3 +1,5 @@
+# Copyright 2021 aaaaaaaalesha <sks2311211@mail.ru>
+
 import unittest
 
 from src.stack_machine import StackMachine
@@ -12,6 +14,35 @@ class StackMachineTestCase(unittest.TestCase):
         stack_machine.launch()
 
         self.assertTrue(stack_machine.get_TOS())
+
+    def test_conditions(self):
+        source_code = "2 1 >"
+
+        stack_machine = StackMachine(source_code)
+        stack_machine.launch()
+
+        self.assertTrue(stack_machine.get_TOS())
+
+        source_code = "1 2 <"
+
+        stack_machine = StackMachine(source_code)
+        stack_machine.launch()
+
+        self.assertTrue(stack_machine.get_TOS())
+
+        source_code = "2 1 > 1 2 < and"
+
+        stack_machine = StackMachine(source_code)
+        stack_machine.launch()
+
+        self.assertTrue(stack_machine.get_TOS())
+
+        source_code = "2 1 < 1 2 > or"
+
+        stack_machine = StackMachine(source_code)
+        stack_machine.launch()
+
+        self.assertFalse(stack_machine.get_TOS())
 
     def test_example(self):
         source_code = ' '.join([

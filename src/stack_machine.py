@@ -41,6 +41,10 @@ class StackMachine:
             '/': self.div,
             '%': self.mod,
             '==': self.equal,
+            '>': self.greater,
+            '<': self.less,
+            'and': self.operator_and,
+            'or': self.operator_or,
             'cast_int': self.cast_int,
             'cast_str': self.cast_str,
             'drop': self.drop,
@@ -136,6 +140,7 @@ class StackMachine:
     def launch(self):
         """Launching the stack machine."""
         self.compile()
+        print("Compile Result: " + str(self.get_compile_result()))
         while self.__iptr < len(self.__code_list):
             current = self.__code_list[self.__iptr]
             # Go to next instruction.
@@ -183,6 +188,12 @@ class StackMachine:
         """
         return self.__ds.pop()
 
+    def get_compile_result(self):
+        """
+        :return: self.__code_list
+        """
+        return self.__code_list
+
     # Instructions implementation.
     def sum(self):
         """Implementation of '+'."""
@@ -219,6 +230,30 @@ class StackMachine:
         rhs = self.__ds.pop()
         lhs = self.__ds.pop()
         self.__ds.push(lhs == rhs)
+
+    def greater(self):
+        """Implementation of '>'."""
+        rhs = self.__ds.pop()
+        lhs = self.__ds.pop()
+        self.__ds.push(lhs > rhs)
+
+    def less(self):
+        """Implementation of '<'."""
+        rhs = self.__ds.pop()
+        lhs = self.__ds.pop()
+        self.__ds.push(lhs < rhs)
+
+    def operator_and(self):
+        """Implementation of 'and'."""
+        rhs = self.__ds.pop()
+        lhs = self.__ds.pop()
+        self.__ds.push(lhs and rhs)
+
+    def operator_or(self):
+        """Implementation of 'or'."""
+        rhs = self.__ds.pop()
+        lhs = self.__ds.pop()
+        self.__ds.push(lhs or rhs)
 
     def cast_int(self):
         """Cast TOS to int."""
@@ -314,26 +349,19 @@ class StackMachine:
             raise HeapException(f"No variable {var_name} in heap.")
 
 
-if __name__ == "__main__":
-    text2 = ' '.join([
-        '"Enter a number: "', "print", "read", "cast_int",
-        '"Enter another number: "', "print", "read", "cast_int",
-        '"Their sum is: "', "print", "+", "print", '"sum"', "store",
-        '"Their product is: ""', "print", "*", "print", '"prod"', "store",
-        '"prod"', "load", '"sum"', "load"
-    ])
+def output_source_code(code: str):
+    print("Source code:")
+    print("------------------------------")
+    print(code)
+    print("------------------------------")
 
-    text = """// функция возведения в квадрат
-: power2 dup * ;
-// функция получения int от пользователя
-: get_arg print read cast_int ;
-"Give me $a" get_arg "a" store
-"Give me $b" get_arg "b" store
-"Give me $c" get_arg "c" store
-"Give me $x" get_arg "x" store
-"a" load "x" load power2  * "b" load "x" load * + "c" load + dup println stack
-"""
 
-    sm = StackMachine(text)
+if __name__ == '__main__':
+    """Example from the task."""
+    with open('../example.txt', 'r') as f:
+        source_code = f.read()
+        output_source_code(source_code)
+
+    sm = StackMachine(source_code)
 
     sm.launch()
