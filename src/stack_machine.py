@@ -172,7 +172,7 @@ class StackMachine:
             if toknum == tokenize.NUMBER:
                 if not comment_flag:
                     yield int(tokval)
-            elif toknum == tokenize.NEWLINE or tokval == ' ':  # '\n'
+            elif toknum == tokenize.NEWLINE or toknum == 58 or tokval == ' ':  # '\n'
                 if comment_flag:
                     comment_flag = False
                 continue
