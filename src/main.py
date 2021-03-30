@@ -1,5 +1,5 @@
 # Copyright 2021 aaaaaaaalesha <sks2311211@mail.ru>
-from src.stack_machine import StackMachine, output_source_code
+from src.stack_machine import StackMachine
 
 if __name__ == '__main__':
     """Example from the task."""
