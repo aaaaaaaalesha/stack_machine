@@ -4,6 +4,7 @@
 : placement swap dup ! "n_fact" store swap - ! "n_fact" load swap / cast_int ;
 // Combinations (C_{n}^{k})
 : combination dup ! "k_fact" store placement "k_fact" load / cast_int ;
+
 // Main code
 "╚═══╝╚══╝╚╝─╚╝╚══╝╚╝──╚╝╚══╝╚╝╚╝╚══╝"
 "║╚═╝║╔╝╚╗║║─║║║╚╝║║║╚╝║║╔╝╚╗║║║║║╚═╗"
@@ -12,6 +13,7 @@
 "║╔╗║─╚╗╔╝║╚═╝║║╔╗║║║──║║╚╗╔╝║╔╗║║║"
 "╔══╗─╔══╗╔╗─╔╗╔══╗╔╗──╔╗╔══╗╔══╗╔╗"
 print6
+
 "Enter n: " print read cast_int "n" store
 "Enter k: " print read cast_int "k" store
 // Factorial
