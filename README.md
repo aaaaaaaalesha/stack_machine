@@ -1,5 +1,5 @@
-# Домашнее задание №1. Stack Machine.
-## Выполнил: Александров Алексей Николаевич, ИУ8-44
+# Stack Machine
+## Выполнил: Александров Алексей Николаевич, ИУ8-@4
 <img alt="aaaaaaaalesha" src="https://img.shields.io/badge/aaaaaaaalesha-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white"/><img alt="Python" src="https://img.shields.io/badge/python%20-%2314354C.svg?&style=for-the-badge&logo=python&logoColor=white"/>
 
 ## Задание.
