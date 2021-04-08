@@ -1,9 +1,11 @@
 # Copyright 2021 aaaaaaaalesha <sks2311211@mail.ru>
 
-from src.stack import Stack
 import io
 import tokenize
+import sys
 from functools import reduce
+
+from src.stack import Stack
 
 
 class StackMachineException(Exception):
@@ -343,7 +345,7 @@ class StackMachine:
 
     def exit(self):
         """Terminates the stack machine."""
-        quit(0)
+        sys.exit(0)
 
     def ret(self):
         """Return from procedure."""
@@ -371,13 +373,6 @@ class StackMachine:
             self.__ds.push(self.__heap[var_name])
         else:
             raise HeapException(f"No variable {var_name} in heap.")
-
-
-def output_source_code(code: str):
-    print("Source code:")
-    print("------------------------------")
-    print(code)
-    print("------------------------------")
 
 
 if __name__ == '__main__':
