@@ -5,28 +5,36 @@ from collections import deque
 
 class Stack(deque):
     """
-    Best way for stack implementation based on collections.deque.
+    Stack implementation based on collections.deque.
     Source: https://www.geeksforgeeks.org/stack-in-python/
     """
 
     def __str__(self):
-        """Overrides the string representation of my stack."""
         repr_version = self.copy()
         repr_version.reverse()
 
         return "Stack" + list(repr_version).__str__()
 
-    def empty(self):
-        return len(self) == 0
+    def __len__(self):
+        return len(self)
+
+    def __bool__(self):
+        return bool(self)
 
     def top(self):
-        """Accesses the top element."""
+        """
+        Accesses the top element.
+        @return: top element in stack.
+        """
         head = self.pop()
         self.push(head)
         return head
 
     def push(self, value):
-        """Inserts element at the top."""
+        """
+        Inserts element at the top.
+        @param value: the element that is put on the stack;
+        """
         return self.append(value)
 
     pop = deque.pop

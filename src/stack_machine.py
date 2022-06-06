@@ -9,14 +9,23 @@ from src.stack import Stack
 
 
 class StackMachineException(Exception):
+    """
+    Base StackMachine exception.
+    """
     pass
 
 
 class InvalidInstructionException(StackMachineException):
+    """
+    StackMachine exception which is thrown when an invalid instruction exists.
+    """
     pass
 
 
 class HeapException(StackMachineException):
+    """
+    StackMachine exception which is thrown when a variable could not be found in heap.
+    """
     pass
 
 
@@ -68,7 +77,7 @@ class StackMachine:
             'load': self.load,
         }
 
-    def compile(self):
+    def compile(self) -> None:
         """
         When "compiling", we need to do the following:
             1. separate procedures from the rest of the code (temp dict self._procedures);
@@ -142,7 +151,7 @@ class StackMachine:
                 if self.__code_list[i] in self.__procedures:
                     self.__code_list[i] = self.__procedures[self.__code_list[i]]
 
-    def launch(self):
+    def launch(self) -> None:
         """Launching the stack machine."""
         self.compile()
         print("Compile Result: " + str(self.get_compile_result()))
@@ -163,8 +172,12 @@ class StackMachine:
             else:
                 raise InvalidInstructionException(str(current) + " is invalid instruction or type for stack machine.")
 
-    def parse(self, text: str):
-        """Parsing the source code to instructions list for machine."""
+    @staticmethod
+    def parse(text: str):
+        """
+        Parsing the source code to instructions list for machine.
+        @param text: source code
+        """
         stream = io.StringIO(text)
         tokens = tokenize.generate_tokens(stream.readline)
 
@@ -193,44 +206,44 @@ class StackMachine:
         """
         return self.__ds.pop()
 
-    def get_compile_result(self):
+    def get_compile_result(self) -> list:
         """
         :return: self.__code_list
         """
         return self.__code_list
 
     # Instructions implementation.
-    def sum(self):
+    def sum(self) -> None:
         """Implementation of '+'."""
         rhs = self.__ds.pop()
         lhs = self.__ds.pop()
         self.__ds.push(lhs + rhs)
 
-    def sub(self):
+    def sub(self) -> None:
         """Implementation of '-'."""
         rhs = self.__ds.pop()
         lhs = self.__ds.pop()
         self.__ds.push(lhs - rhs)
 
-    def mult(self):
+    def mult(self) -> None:
         """Implementation of '*'."""
         rhs = self.__ds.pop()
         lhs = self.__ds.pop()
         self.__ds.push(lhs * rhs)
 
-    def div(self):
+    def div(self) -> None:
         """Implementation of '/'."""
         rhs = self.__ds.pop()
         lhs = self.__ds.pop()
         self.__ds.push(lhs / rhs)
 
-    def mod(self):
+    def mod(self) -> None:
         """Implementation of '%'."""
         rhs = self.__ds.pop()
         lhs = self.__ds.pop()
         self.__ds.push(lhs % rhs)
 
-    def fact(self):
+    def fact(self) -> None:
         """Implementation of '!' (factorial function)."""
         n = self.__ds.pop()
         if not isinstance(n, int) or n < 0:
@@ -241,56 +254,56 @@ class StackMachine:
             else:
                 self.__ds.push(reduce(lambda x, y: x * y, [i for i in range(1, n + 1)]))
 
-    def equal(self):
+    def equal(self) -> None:
         """Implementation of '=='."""
         rhs = self.__ds.pop()
         lhs = self.__ds.pop()
         self.__ds.push(lhs == rhs)
 
-    def greater(self):
+    def greater(self) -> None:
         """Implementation of '>'."""
         rhs = self.__ds.pop()
         lhs = self.__ds.pop()
         self.__ds.push(lhs > rhs)
 
-    def less(self):
+    def less(self) -> None:
         """Implementation of '<'."""
         rhs = self.__ds.pop()
         lhs = self.__ds.pop()
         self.__ds.push(lhs < rhs)
 
-    def operator_and(self):
+    def operator_and(self) -> None:
         """Implementation of 'and'."""
         rhs = self.__ds.pop()
         lhs = self.__ds.pop()
         self.__ds.push(lhs and rhs)
 
-    def operator_or(self):
+    def operator_or(self) -> None:
         """Implementation of 'or'."""
         rhs = self.__ds.pop()
         lhs = self.__ds.pop()
         self.__ds.push(lhs or rhs)
 
-    def cast_int(self):
+    def cast_int(self) -> None:
         """Cast TOS to int."""
         casted_value = int(self.__ds.pop())
         self.__ds.push(casted_value)
 
-    def cast_str(self):
+    def cast_str(self) -> None:
         """Cast TOS to str."""
         casted_value = str(self.__ds.pop())
         self.__ds.push(casted_value)
 
-    def drop(self):
+    def drop(self) -> None:
         """Throw TOS away..."""
         self.__ds.pop()
 
-    def dup(self):
+    def dup(self) -> None:
         """Duplication of TOS."""
         tos = self.__ds.top()
         self.__ds.push(tos)
 
-    def operator_if(self):
+    def operator_if(self) -> None:
         """Implementation if-operator."""
         is_false = self.__ds.pop()
         is_true = self.__ds.pop()
@@ -301,27 +314,27 @@ class StackMachine:
         else:
             self.__ds.push(is_false)
 
-    def jump(self):
+    def jump(self) -> None:
         """Jumping to pointer of instruction."""
         ptr = self.__ds.pop()
         if not (0 <= ptr < len(self.__code_list)):
             raise OverflowError("Instruction jmp cannot be executed with a pointer outside the valid range.")
         self.__iptr = ptr
 
-    def output_stack(self):
+    def output_stack(self) -> None:
         """Output the content of DS, IP and RS."""
         print("Data " + self.__ds.__str__())
         print("Instruction Pointer: " + str(self.__iptr))
         print("Return" + self.__rs.__str__())
 
-    def swap(self):
+    def swap(self) -> None:
         """Swap TOS and TOS-1."""
         tos = self.__ds.pop()
         tos1 = self.__ds.pop()
         self.__ds.push(tos)
         self.__ds.push(tos1)
 
-    def over(self):
+    def over(self) -> None:
         """
         Puts the value of TOS-1 on TOS without removing it.
         :example: Stack[3, 2] -> Stack[2, 3, 2]
@@ -331,41 +344,41 @@ class StackMachine:
         self.__ds.push(old_tos)
         self.__ds.push(old_tos1)
 
-    def print(self):
+    def print(self) -> None:
         """Output the TOS."""
         print(self.__ds.pop(), end=' ')
 
-    def println(self):
+    def println(self) -> None:
         """Output the TOS and switching to a new line."""
         print(self.__ds.pop())
 
-    def read(self):
+    def read(self) -> None:
         """Read an input of user and put it at the TOS."""
         self.__ds.push(input())
 
-    def exit(self):
+    def exit(self) -> None:
         """Terminates the stack machine."""
         sys.exit(0)
 
-    def ret(self):
+    def ret(self) -> None:
         """Return from procedure."""
         self.__iptr = self.__rs.pop()
 
-    def call(self):
+    def call(self) -> None:
         """Calling an existing procedure."""
         # Store return pointer in RS.
         self.__rs.push(self.__iptr)
         # Jump to calling procedure.
         self.jump()
 
-    def store(self):
+    def store(self) -> None:
         """Put the value of TOS-1 by the variable initialized by name of TOS."""
         var_name = self.__ds.pop()
         value = self.__ds.pop()
         # Store pair var_name-value in heap.
         self.__heap[var_name] = value
 
-    def load(self):
+    def load(self) -> None:
         """Loads the value of var from the heap by the name lying on TOS and puts this value on TOS."""
         var_name = self.__ds.pop()
         if var_name in self.__heap:
